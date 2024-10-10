@@ -9,6 +9,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 from torch_geometric.nn import GCNConv
+from torch_geometric.nn import GraphConv
+from torch_geometric.nn import GATConv
 import torch.nn.functional as F
 from tqdm import tqdm
 import os
@@ -400,7 +402,7 @@ class KNNGraphBuilder:
         edge_attr = []
         
         for i in tqdm(range(len(x)), desc="Building edges"):
-            for j in range(1, self.k+1):  # skip self
+            for j in range(1,self.k+1):  # self loop
                 neighbor = indices[i, j]
                 
                 # decide whether to add the edge
@@ -590,10 +592,29 @@ class GCN(torch.nn.Module):
         x, edge_index = data.x, data.edge_index
         x = self.conv1(x, edge_index)
         x = F.relu(x)
+        x=F.dropout(x, p=0.5, training=self.training)
+        x = self.conv2(x, edge_index)
+        x = F.relu(x)
+        x=F.dropout(x, p=0.5, training=self.training)
+        x = self.conv3(x, edge_index)
+        x = F.sigmoid(x)
+        return x
+    
+class GAT(torch.nn.Module):
+    def __init__(self, in_channels, hidden_channels, out_channels):
+        super(GAT, self).__init__()
+        self.conv1 = GATConv(in_channels, 256, heads=4, concat=True)
+        self.conv2 = GATConv(256 * 4, hidden_channels, heads=4, concat=True)
+        self.conv3 = GATConv(hidden_channels * 4, out_channels, heads=1, concat=False)
+
+    def forward(self, data):
+        x, edge_index = data.x, data.edge_index
+        x = self.conv1(x, edge_index)
+        x = F.relu(x)
         x = self.conv2(x, edge_index)
         x = F.relu(x)
         x = self.conv3(x, edge_index)
-        x = F.sigmoid(x)
+        x = torch.tanh(x)  # Change sigmoid to tanh
         return x
     
 
@@ -708,6 +729,7 @@ if __name__=="__main__":
     val_size=len(val_dataset)
     test_size=len(test_dataset)
     labeled_num=len(train_dataset)
+    # labeled_num=100
     EdgeConstructionPolicy="ThresholdKNN" ##"KNN","ThresholdKNN"
     embeddings_train_dataset,embeddings_val_dataset,embeddings_test_dataset=get_custom_dataset(train_dataset,val_dataset,test_dataset,train_size,val_size,test_size)
     # G=generate_custom_graph(embeddings_train_dataset,embeddings_val_dataset,embeddings_test_dataset,labeled_num)
