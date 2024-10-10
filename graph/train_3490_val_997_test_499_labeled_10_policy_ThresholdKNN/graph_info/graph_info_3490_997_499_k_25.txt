@@ -1,0 +1,17 @@
+Total nodes: 4986
+Total edges: 211350
+Training nodes: 3490
+Validation nodes: 997
+Test nodes: 499
+Labeled nodes: 10
+
+Edge types:
+train-train: 99346
+train-val: 60112
+train-test: 30536
+val-val: 9463
+val-test: 9378
+test-test: 2515
+
+Stat of Out degree:
+median = 25.0, mean = 42.38868832731649, std = 49.50866638211691, min = 3, max = 430, quantile = [3.0, 5.0, 10.0, 16.0, 25.0, 25.0, 25.0, 39.0, 61.0, 109.0, 430.0]

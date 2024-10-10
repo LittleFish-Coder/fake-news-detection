@@ -728,14 +728,14 @@ if __name__=="__main__":
     train_size=len(train_dataset)
     val_size=len(val_dataset)
     test_size=len(test_dataset)
-    labeled_num=len(train_dataset)
-    # labeled_num=100
+    # labeled_num=len(train_dataset)
+    labeled_num=10
     EdgeConstructionPolicy="ThresholdKNN" ##"KNN","ThresholdKNN"
     embeddings_train_dataset,embeddings_val_dataset,embeddings_test_dataset=get_custom_dataset(train_dataset,val_dataset,test_dataset,train_size,val_size,test_size)
-    # G=generate_custom_graph(embeddings_train_dataset,embeddings_val_dataset,embeddings_test_dataset,labeled_num)
+    G=generate_custom_graph(embeddings_train_dataset,embeddings_val_dataset,embeddings_test_dataset,labeled_num)
     graph_path=f"../graph/train_{train_size}_val_{val_size}_test_{test_size}_labeled_{labeled_num}/G/"
-    # os.makedirs(os.path.dirname(graph_path), exist_ok=True)
-    # save_graph(G.get_graph(), f"{graph_path}custom_graph_{train_size}_{val_size}_{test_size}_{labeled_num}.pt")
+    os.makedirs(os.path.dirname(graph_path), exist_ok=True)
+    save_graph(G.get_graph(), f"{graph_path}custom_graph_{train_size}_{val_size}_{test_size}_{labeled_num}.pt")
 
     # #Load graph (if needed later)
     loaded_G = load_graph(f"{graph_path}custom_graph_{train_size}_{val_size}_{test_size}_{labeled_num}.pt")
